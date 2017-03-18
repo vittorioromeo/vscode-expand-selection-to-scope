@@ -4,5 +4,7 @@ This extension introduces a command that incrementally expands the selection to 
 
 Command: `expand-selection-to-scope.expand`
 
+[*(On the VS Code Marketplace.)*](https://marketplace.visualstudio.com/items?itemName=vittorioromeo.expand-selection-to-scope)
+
 ![example gif](example.gif)
 
