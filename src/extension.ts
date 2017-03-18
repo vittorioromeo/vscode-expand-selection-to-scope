@@ -1,4 +1,4 @@
-// Copyright (c) 2016 Vittorio Romeo
+// Copyright (c) 2016-2017 Vittorio Romeo
 // License: Academic Free License ("AFL") v. 3.0
 // AFL License page: http://opensource.org/licenses/AFL-3.0
 // https://vittorioromeo.info | vittorio.romeo@outlook.com
@@ -89,47 +89,51 @@ export function activate(context: vscode.ExtensionContext)
     let disposable = vscode.commands.registerTextEditorCommand(cmd_name, (editor) => 
     {
         let document = editor.document;
-        let selection = editor.selection;
-        const text = document.getText();
-
-        let offset_l = document.offsetAt(selection.start);
-        let offset_r = document.offsetAt(selection.end) - 1;
-
-        // Try expanding selection to outer scope
-        if(offset_l > 0 && offset_r < text.length - 1)
+        editor.selections = editor.selections.map((selection, selectionIdx) => 
         {
-            // Try to get surrounding brackets
-            const s_l = symbols_l.indexOf(text[offset_l - 1]);
-            const s_r = symbols_r.indexOf(text[offset_r + 1]);
+            const text = document.getText();
 
-            // Verify that both are brackets and match
-            const both_brackets = s_l !== -1 && s_r !== -1;
-            const equal = s_l === s_r;
+            let offset_l = document.offsetAt(selection.start);
+            let offset_r = document.offsetAt(selection.end) - 1;
 
-            if(both_brackets && equal)
+            // Try expanding selection to outer scope
+            if(offset_l > 0 && offset_r < text.length - 1)
             {
-                // Expand selection
-                editor.selection = new vscode.Selection(document.positionAt(offset_l - 1), document.positionAt(offset_r + 2));
-                return;
-            }
-        }
+                // Try to get surrounding brackets
+                const s_l = symbols_l.indexOf(text[offset_l - 1]);
+                const s_r = symbols_r.indexOf(text[offset_r + 1]);
 
-        // Search matching scopes, first to the left, then to the right
-        search_scope(text, offset_l - 1, left, (il, match_l) => 
-        {
-            search_scope(text, offset_r + 1, right, (ir, match_r) => 
-            {
-                if(match_l !== match_r)
+                // Verify that both are brackets and match
+                const both_brackets = s_l !== -1 && s_r !== -1;
+                const equal = s_l === s_r;
+
+                if(both_brackets && equal)
                 {
-                    show_error_popup();
-                    return;
+                    // Expand selection
+                    return new vscode.Selection(
+                        document.positionAt(offset_l - 1), document.positionAt(offset_r + 2));
                 }
+            }
 
-                // Select everything inside the scope
-                let l_pos = document.positionAt(il + 1);
-                let r_pos = document.positionAt(ir);
-                editor.selection = new vscode.Selection(l_pos, r_pos);
+            // Search matching scopes, first to the left, then to the right
+            search_scope(text, offset_l - 1, left, (il, match_l) => 
+            {
+                search_scope(text, offset_r + 1, right, (ir, match_r) => 
+                {
+                    if(match_l !== match_r)
+                    {
+                        show_error_popup();
+                        return selection;
+                    }
+
+                    // Select everything inside the scope
+                    let l_pos = document.positionAt(il + 1);
+                    let r_pos = document.positionAt(ir);
+                    selection = new vscode.Selection(l_pos, r_pos);
+                });
             });
+
+            return selection;
         });
     });
 

@@ -8,3 +8,6 @@ Command: `expand-selection-to-scope.expand`
 
 ![example gif](example.gif)
 
+Version 0.2 supports multple cursors:
+
+![example gif - muiltiple cursors](example_multicursor.gif)
