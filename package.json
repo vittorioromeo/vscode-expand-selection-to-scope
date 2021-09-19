@@ -2,7 +2,7 @@
     "name": "expand-selection-to-scope",
     "displayName": "Expand Selection To Scope",
     "description": "This extension introduces a command that incrementally expands the selection to the nearest outer scope (delimited by bracket pairs)",
-    "version": "0.2.0",
+    "version": "0.2.1",
     "publisher": "vittorioromeo",
     "engines": {
         "vscode": "^1.5.0"
@@ -31,7 +31,8 @@
         "typescript": "^2.0.3",
         "mocha": "^2.3.3",
         "@types/node": "^6.0.40",
-        "@types/mocha": "^2.2.32"
+        "@types/mocha": "^2.2.32",
+        "vscode": "^1.1.37"
     },
     "repository": "https://github.com/SuperV1234/vscode-expand-selection-to-scope",
     "license": "AFL-3.0"

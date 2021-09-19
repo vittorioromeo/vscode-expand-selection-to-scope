@@ -16,6 +16,9 @@ const peek = (stack) => stack.slice(-1)[0];
 // Show unbalanced brackets error
 const show_error_popup = () => vscode.window.showInformationMessage('Unbalanced brackets :(');
 
+const show_error_popup2 = (l, r) => vscode.window.showInformationMessage(
+    'Unbalanced brackets ' + l + ' and ' + r);
+
 // Behavior for `search_scope` towards left
 const left = 
 {
@@ -80,6 +83,29 @@ function search_scope(text: string, offset: number, direction, then)
             return;
         }
     }
+
+    // No matching brackets found, now searching for empty lines.
+    // But if this is searching left, and already in a empty line, then stay here.
+    if (direction.step < 0 && offset + 1 < text.length &&
+        text[offset] == '\n' && text[offset + 1] == '\n') {
+        then(offset, -1)
+        return
+    }
+    let lasti: number = -1;
+    for (let i = offset; direction.predicate(i, text); i += direction.step) {
+        // Current character
+        const c = text[i];
+        if (lasti >= 0 && text[lasti] == '\n' && c == '\n') {
+            then(i, -1)
+            return
+        }
+        else {
+            lasti = i
+        }
+    }
+    if (lasti >= 0) {
+        then(lasti, -1)
+    }
 }
 
 export function activate(context: vscode.ExtensionContext) 
@@ -122,7 +148,7 @@ export function activate(context: vscode.ExtensionContext)
                 {
                     if(match_l !== match_r)
                     {
-                        show_error_popup();
+                        show_error_popup2(match_l, match_r);
                         return selection;
                     }
 
